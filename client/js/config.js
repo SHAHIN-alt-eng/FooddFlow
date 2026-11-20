@@ -8,7 +8,7 @@
   const isLocal = ["localhost", "127.0.0.1", "::1"].includes(hostname);
   const defaultUrl = isLocal
     ? `${window.location.protocol === "https:" ? "https:" : "http:"}//${hostname}:5000/api`
-    : `${window.location.origin}/api`;
+    : "https://fooddflow.onrender.com/api";
 
   window.FOODFLOW_API_BASE_URL = (configuredUrl || defaultUrl).replace(/\/+$/, "");
 })();
