@@ -37,7 +37,16 @@ const db = mysql.createPool({
 
   enableKeepAlive: true,
   keepAliveInitialDelay: 0,
-  timezone: "Z"
+  timezone: "Z",
+
+  // Managed MySQL-compatible services such as TiDB Cloud require TLS.
+  // Leave this disabled for a local MySQL installation unless DB_SSL=true.
+  ...(process.env.DB_SSL === "true" && {
+    ssl: {
+      minVersion: "TLSv1.2",
+      rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED !== "false"
+    }
+  })
 });
 
 async function testDatabaseConnection() {
