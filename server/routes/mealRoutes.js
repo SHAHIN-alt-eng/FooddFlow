@@ -1,0 +1,13 @@
+"use strict";
+const router = require("express").Router();
+const { authenticateToken, authorizeRoles } = require("../middlewares/authMiddleware");
+const meals = require("../controllers/mealController");
+const { mealWriteLimiter } = require("../middlewares/rateLimiters");
+router.use(authenticateToken);
+router.get("/today", meals.getTodaysMeals);
+router.get("/", meals.getMeals);
+router.get("/:id", meals.getMealById);
+router.post("/", authorizeRoles("staff", "admin"), mealWriteLimiter, meals.createMeal);
+router.put("/:id", authorizeRoles("staff", "admin"), mealWriteLimiter, meals.updateMeal);
+router.delete("/:id", authorizeRoles("staff", "admin"), mealWriteLimiter, meals.cancelMeal);
+module.exports = router;

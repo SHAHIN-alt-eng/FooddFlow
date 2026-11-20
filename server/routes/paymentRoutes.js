@@ -1,0 +1,10 @@
+"use strict";
+const router = require("express").Router();
+const { authenticateToken, authorizeRoles } = require("../middlewares/authMiddleware");
+const payments = require("../controllers/paymentController");
+const { reservationWriteLimiter } = require("../middlewares/rateLimiters");
+router.get("/bkash/callback", payments.bkashCallback);
+router.post("/bkash/create", authenticateToken, authorizeRoles("student"), reservationWriteLimiter, payments.createBkashPayment);
+router.post("/bkash/execute/:paymentId", authenticateToken, authorizeRoles("student"), reservationWriteLimiter, payments.executeForStudent);
+router.get("/received", authenticateToken, authorizeRoles("staff"), payments.getReceivedPayments);
+module.exports = router;

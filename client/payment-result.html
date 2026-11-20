@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FoodFlow payment result</title><link rel="stylesheet" href="css/style.css">
+  <style>
+    :root { --bkash: #e2136e; --ink: #172a22; --success: #17864b; }
+    .result-page { min-height: 100vh; display: grid; place-items: center; padding: 32px 18px; background: radial-gradient(circle at 9% 12%, #ffd7e8 0, transparent 30%), radial-gradient(circle at 92% 87%, #d9f6e4 0, transparent 28%), #f7faf8; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+    .result-card { width: min(100%, 510px); padding: 38px 32px 34px; text-align: center; background: rgba(255,255,255,.96); border: 1px solid #f5dbe6; border-radius: 25px; box-shadow: 0 24px 65px rgba(77,22,49,.15); }.result-brand { display: inline-flex; align-items: center; gap: 9px; padding: 7px 13px 7px 8px; border: 1px solid #f4d0e0; border-radius: 99px; color: var(--bkash); background: #fff7fa; font-weight: 850; }.brand-mark { display: grid; place-items: center; width: 29px; height: 29px; border-radius: 10px; color: #fff; background: var(--bkash); font-size: 18px; font-weight: 900; letter-spacing: -1px; }
+    .result-icon { display: grid; place-items: center; width: 88px; height: 88px; margin: 28px auto 19px; border-radius: 50%; color: #fff; background: linear-gradient(135deg, #24ae66, #117640); box-shadow: 0 13px 27px rgba(23,134,75,.25); }.result-icon svg { width: 45px; height: 45px; }.result-card h1 { margin: 0; color: var(--ink); font-size: clamp(27px, 6vw, 35px); letter-spacing: -.9px; }.result-card p { max-width: 360px; margin: 12px auto 26px; color: #617168; line-height: 1.55; font-size: 15px; }.result-card.is-failed .result-icon { background: linear-gradient(135deg, #f28553, #d84d4d); box-shadow: 0 13px 27px rgba(216,77,77,.22); }.result-card.is-failed .result-icon .check { display: none; }.result-card.is-failed .result-icon .cross { display: block; }.cross { display: none; }.dashboard-return { display: inline-flex; align-items: center; justify-content: center; min-height: 50px; padding: 0 25px; border-radius: 13px; color: #fff; background: linear-gradient(135deg, var(--bkash), #c70d5a); box-shadow: 0 9px 18px rgba(202,15,88,.23); font-weight: 800; text-decoration: none; transition: .2s ease; }.dashboard-return:hover { color: #fff; transform: translateY(-2px); box-shadow: 0 12px 22px rgba(202,15,88,.3); }.secure-note { display: flex; justify-content: center; align-items: center; gap: 6px; margin: 22px 0 0 !important; color: #8a9890 !important; font-size: 12px !important; }.secure-note svg { width: 14px; height: 14px; color: var(--success); }
+  </style>
+</head>
+<body class="result-page">
+  <main class="result-card" id="resultCard">
+    <div class="result-brand"><span class="brand-mark">b</span><span>bKash</span></div>
+    <div class="result-icon"><svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4.2 4.2L19.5 6"/></svg><svg class="cross" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="m7 7 10 10M17 7 7 17"/></svg></div>
+    <h1 id="title">Checking payment…</h1><p id="message">Please wait while FoodFlow confirms your payment.</p>
+    <a class="dashboard-return" href="student-dashboard.html">Return to dashboard</a><p class="secure-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Secure payment powered by FoodFlow</p>
+  </main>
+  <script>const p=new URLSearchParams(location.search),ok=p.get('result')==='success',card=document.getElementById('resultCard');document.getElementById('title').textContent=ok?'Payment successful':'Payment not completed';document.getElementById('message').textContent=p.get('message')||(ok?'Your meal reservation is confirmed.':'Please try again from the meal list.');if(!ok)card.classList.add('is-failed');</script>
+</body>
+</html>

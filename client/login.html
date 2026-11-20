@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description" content="FoodFlow - Smart Hall Meal Management System">
+
+    <title>FoodFlow | Login</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <main class="page-shell">
+
+        <!-- ==============================
+             Left / Introduction Section
+        =============================== -->
+
+        <section class="intro-panel">
+
+            <a href="#" class="brand" aria-label="FoodFlow Home">
+
+                <img class="brand-logo" src="assets/foodflow-logo.svg" alt="">
+
+                <span class="brand-name">
+                    <span class="brand-food">Food</span><span class="brand-flow">Flow</span>
+                </span>
+
+            </a>
+
+
+            <div class="intro-copy">
+
+                <p class="eyebrow">
+                    SMART HALL MEAL MANAGEMENT
+                </p>
+
+                <h1>
+                    Eat better.
+                    <span>Live smarter.</span>
+                </h1>
+
+                <p>
+                    Manage your meals, reservations and
+                    cafeteria services through one simple
+                    and connected platform.
+                </p>
+
+            </div>
+
+
+            <!-- Small visual food element -->
+
+            <div class="food-art" aria-hidden="true">
+
+                <div class="art-plate"></div>
+
+                <div class="art-leaf"></div>
+
+                <div class="art-dot art-dot-one"></div>
+
+                <div class="art-dot art-dot-two"></div>
+
+            </div>
+
+
+            <!-- Trust / Information -->
+
+            <div class="trust-row">
+
+                <div>
+                    <strong>Simple</strong>
+                    <span>Easy to use</span>
+                </div>
+
+                <div>
+                    <strong>Smart</strong>
+                    <span>Better planning</span>
+                </div>
+
+                <div>
+                    <strong>Secure</strong>
+                    <span>Protected access</span>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==============================
+             Right / Login Section
+        =============================== -->
+
+        <section class="login-panel">
+
+            <div class="panel-heading">
+
+                <p class="eyebrow">
+                    WELCOME BACK
+                </p>
+
+                <h2>
+                    Sign in
+                </h2>
+
+                <p>
+                    Access your FoodFlow account to continue.
+                </p>
+
+            </div>
+
+
+            <!-- Login Form -->
+
+            <form id="loginForm">
+
+                <!-- Email -->
+
+                <div class="form-group">
+
+                    <label for="email">
+                        Email address
+                    </label>
+
+                    <div class="input-wrap">
+
+                        <span class="field-icon" aria-hidden="true">
+                            ✉
+                        </span>
+
+                        <input type="email" id="email" name="email" placeholder="Enter your email" autocomplete="email"
+                            required>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Password -->
+
+                <div class="form-group">
+
+                    <div class="label-row">
+
+                        <label for="password">
+                            Password
+                        </label>
+
+                        <button type="button" class="text-button" id="togglePassword">
+                            Show
+                        </button>
+
+                    </div>
+
+
+                    <div class="input-wrap">
+
+                        <span class="field-icon" aria-hidden="true">
+                            🔒
+                        </span>
+
+                        <input type="password" id="password" name="password" placeholder="Enter your password"
+                            autocomplete="current-password" required>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Login Button -->
+
+                <button type="submit" id="loginButton">
+
+                    <span id="loginButtonText">
+                        Sign in
+                    </span>
+
+                    <span aria-hidden="true">
+                        →
+                    </span>
+
+                </button>
+
+
+                <!-- Error / Success Message -->
+
+                <p id="message" role="alert" aria-live="polite"></p>
+
+            </form>
+
+
+            <!-- Security Note -->
+
+            <p class="secure-note">
+
+                <span>✓</span>
+
+                Your account information is securely protected.
+
+            </p>
+
+
+            <!-- Register / Forgot -->
+
+            <div class="form-links">
+
+                <button type="button" class="link-button" id="forgotPassword">
+                    Forgot password?
+                </button>
+
+                <a href="register.html">
+                    Create an account →
+                </a>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ==============================
+         Forgot Password Dialog
+    =============================== -->
+
+    <dialog id="forgotDialog" class="forgot-dialog">
+
+        <button type="button" class="dialog-close" id="closeForgotDialog" aria-label="Close">
+            ✕
+        </button>
+
+        <p class="eyebrow">
+            ACCOUNT RECOVERY
+        </p>
+
+        <h2>
+            Forgot password?
+        </h2>
+
+        <p>
+            Password recovery will be connected
+            to the authentication system in a later step.
+        </p>
+
+    </dialog>
+
+
+    <!-- Login JavaScript -->
+
+    <script src="js/config.js"></script>
+    <script src="js/login.js"></script>
+
+</body>
+
+</html>

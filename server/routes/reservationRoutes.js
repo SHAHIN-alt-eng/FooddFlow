@@ -1,0 +1,12 @@
+"use strict";
+const router = require("express").Router();
+const { authenticateToken, authorizeRoles } = require("../middlewares/authMiddleware");
+const reservations = require("../controllers/reservationController");
+const { reservationWriteLimiter } = require("../middlewares/rateLimiters");
+router.use(authenticateToken);
+router.post("/collect", authorizeRoles("staff", "admin"), reservationWriteLimiter, reservations.collectMeal);
+router.post("/", authorizeRoles("student"), reservationWriteLimiter, reservations.reserveMeal);
+router.get("/", authorizeRoles("student"), reservations.getMyReservations);
+router.get("/:id", authorizeRoles("student"), reservations.getReservationById);
+router.delete("/:id", authorizeRoles("student"), reservationWriteLimiter, reservations.cancelReservation);
+module.exports = router;

@@ -1,0 +1,29 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="foodGreen" x1="26" y1="18" x2="90" y2="98" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#C9F23A"/>
+      <stop offset="1" stop-color="#3A9A4D"/>
+    </linearGradient>
+    <linearGradient id="foodOrange" x1="29" y1="64" x2="84" y2="101" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFB51B"/>
+      <stop offset="1" stop-color="#E96816"/>
+    </linearGradient>
+    <filter id="softShadow" x="10" y="8" width="100" height="105" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#173D27" flood-opacity=".28"/>
+    </filter>
+  </defs>
+  <g filter="url(#softShadow)">
+    <path d="M22 77C10 53 21 28 48 18" stroke="#B7E82D" stroke-width="4" stroke-linecap="round"/>
+    <path d="M91 25C108 42 106 72 90 91" stroke="#F7A513" stroke-width="4" stroke-linecap="round"/>
+    <path d="M22 69C13 58 10 48 14 39C23 43 28 52 25 62C24 65 23 67 22 69Z" fill="#94D52C"/>
+    <path d="M22 67C20 57 19 50 16 43" stroke="#285E32" stroke-width="2" stroke-linecap="round"/>
+    <path d="M45 22C45 14 52 10 59 14C65 8 77 12 78 20C87 21 90 29 86 36C77 38 68 31 64 29C58 32 51 32 45 29C41 27 42 24 45 22Z" fill="#FFFDF6"/>
+    <path d="M51 21H78L74 34H54L51 21Z" fill="#F2F0E8" stroke="#1B3224" stroke-width="2"/>
+    <path d="M33 45C30 29 43 19 59 23C72 26 76 36 70 45C61 56 46 63 34 71C25 61 27 51 33 45Z" fill="url(#foodGreen)"/>
+    <path d="M39 63C48 52 60 48 76 50C68 59 59 63 50 66C62 65 72 61 82 54C80 71 67 77 52 75C43 74 37 70 39 63Z" fill="url(#foodOrange)"/>
+    <path d="M53 48L76 45M57 52L80 49M61 56L83 53" stroke="#BDF02B" stroke-width="3" stroke-linecap="round"/>
+    <path d="M43 82C43 72 50 67 60 68C70 69 77 76 77 84C67 91 52 91 43 82Z" fill="#F7F7EF" stroke="#263B2A" stroke-width="2"/>
+    <path d="M38 84C49 90 70 91 82 83C80 95 68 101 55 99C45 98 39 92 38 84Z" fill="url(#foodOrange)" stroke="#263B2A" stroke-width="2"/>
+    <path d="M47 82C51 77 55 76 60 79C63 75 69 77 72 82" stroke="#80C72D" stroke-width="5" stroke-linecap="round"/>
+  </g>
+</svg>

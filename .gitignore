@@ -1,0 +1,14 @@
+# Dependencies are installed by the deployment platform.
+node_modules/
+
+# Keep passwords, database credentials, and JWT secrets out of GitHub.
+.env
+.env.*
+!.env.example
+
+# Local editor and operating-system files.
+.vscode/
+.idea/
+*.log
+.DS_Store
+Thumbs.db

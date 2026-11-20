@@ -1,0 +1,10 @@
+"use strict";
+const router = require("express").Router();
+const { authenticateToken, authorizeRoles } = require("../middlewares/authMiddleware");
+const complaints = require("../controllers/complaintController");
+router.use(authenticateToken);
+router.post("/", authorizeRoles("student"), complaints.createComplaint);
+router.get("/my", authorizeRoles("student"), complaints.getMyComplaints);
+router.get("/", authorizeRoles("staff", "admin"), complaints.getComplaints);
+router.put("/:id", authorizeRoles("staff", "admin"), complaints.updateComplaint);
+module.exports = router;

@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FoodFlow staff meal management dashboard">
+    <title>FoodFlow | Staff Dashboard</title>
+    <link rel="stylesheet" href="css/style.css?v=20260922-final">
+    <style>
+        /* =====================================================
+           Custom Logout Modal
+           ===================================================== */
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(40, 58, 43, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(3px);
+            animation: modalFadeIn 0.2s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-dialog {
+            width: 90%;
+            max-width: 420px;
+            animation: modalSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes modalSlideIn {
+            from { transform: scale(0.95) translateY(-20px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(40, 58, 43, 0.15);
+            overflow: hidden;
+            border: 1px solid rgba(40, 58, 43, 0.08);
+        }
+
+        .modal-header {
+            padding: 24px 24px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(40, 58, 43, 0.08);
+        }
+
+        .modal-title {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: #283a2b;
+            letter-spacing: -0.2px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #858b82;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(40, 58, 43, 0.06);
+            color: #283a2b;
+        }
+
+        .modal-body {
+            padding: 24px;
+            color: #52623f;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .modal-body p {
+            margin: 0;
+        }
+
+        .modal-footer {
+            padding: 18px 24px 24px;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .modal-button {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: 0.3px;
+        }
+
+        .modal-button-cancel {
+            background: #f0f1ed;
+            color: #52623f;
+            border: 1px solid rgba(40, 58, 43, 0.12);
+        }
+
+        .modal-button-cancel:hover {
+            background: #e8eae4;
+            transform: translateY(-1px);
+        }
+
+        .modal-button-confirm {
+            background: linear-gradient(135deg, #b25948 0%, #a04a3d 100%);
+            color: #ffffff;
+        }
+
+        .modal-button-confirm:hover {
+            background: linear-gradient(135deg, #a04a3d 0%, #8f3d34 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px rgba(178, 89, 72, 0.25);
+        }
+
+        .modal-button-confirm:active {
+            transform: translateY(0);
+        }
+
+        /* =====================================================
+           Complaint Box (shared styling)
+           ===================================================== */
+
+        .complaint-form .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .complaint-form label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #52623f;
+        }
+
+        .complaint-form input,
+        .complaint-form textarea {
+            padding: 12px 14px;
+            border: 1px solid #dfe3d9;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            background: #fffcf8;
+            color: #2d4034;
+        }
+
+        .complaint-form textarea {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        .complaint-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .complaint-item {
+            border: 1px solid #e6e8e2;
+            border-radius: 14px;
+            padding: 16px 18px;
+            background: #ffffff;
+            box-shadow: 0 7px 25px rgba(36, 57, 45, 0.04);
+        }
+
+        .complaint-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+
+        .complaint-item-header h3 {
+            margin: 0;
+            font-size: 15px;
+            color: #2d4034;
+        }
+
+        .complaint-item-meta {
+            font-size: 11px;
+            color: #858e88;
+            margin-top: 4px;
+        }
+
+        .complaint-message {
+            font-size: 14px;
+            color: #4a5a44;
+            line-height: 1.5;
+            margin: 8px 0;
+            white-space: pre-wrap;
+        }
+
+        .complaint-response {
+            margin-top: 10px;
+            padding: 10px 12px;
+            background: #f4f6f0;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #4a5a44;
+        }
+
+        .complaint-status {
+            padding: 5px 10px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 750;
+            text-transform: capitalize;
+            white-space: nowrap;
+        }
+
+        .complaint-status.status-pending {
+            background: #f7e9d0;
+            color: #a1701f;
+        }
+
+        .complaint-status.status-in_progress {
+            background: #dbe7f7;
+            color: #2c5da1;
+        }
+
+        .complaint-status.status-resolved {
+            background: #e8f0d4;
+            color: #527044;
+        }
+
+        .complaint-manage-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .complaint-manage-actions select {
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid #dfe3d9;
+            font-size: 13px;
+            font-family: inherit;
+        }
+
+        .complaint-manage-actions textarea {
+            flex: 1;
+            min-width: 200px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid #dfe3d9;
+            font-size: 13px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .complaint-manage-actions button {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            background: #294333;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .complaint-manage-actions button:hover {
+            background: #1f3327;
+        }
+
+    </style>
+</head>
+
+<body class="dashboard-page staff-dashboard-page">
+
+    <div class="dashboard-app">
+
+        <aside class="dashboard-sidebar">
+            <a href="staff-dashboard.html" class="dashboard-brand" aria-label="FoodFlow staff dashboard">
+                <img class="brand-logo" src="assets/foodflow-logo.svg" alt="FoodFlow">
+                <span class="brand-name"><span class="brand-food">Food</span><span class="brand-flow">Flow</span></span>
+            </a>
+
+            <nav class="dashboard-nav" aria-label="Staff navigation">
+                <p class="nav-label">STAFF MENU</p>
+                <a href="#overview" class="nav-item active"><span class="nav-icon">◈</span><span>Overview</span></a>
+                <a href="#qr-scanner" class="nav-item"><span class="nav-icon">■</span><span>QR Scanner</span></a>
+                <a href="#menu-management" class="nav-item"><span class="nav-icon">◉</span><span>Manage menu</span></a>
+                <a href="#service-status" class="nav-item"><span class="nav-icon">▣</span><span>Service
+                        status</span></a>
+                <a href="#payments" class="nav-item"><span class="nav-icon">৳</span><span>Payments</span></a>
+                <a href="#complaints" class="nav-item"><span class="nav-icon">!</span><span>Complaints</span></a>
+            </nav>
+
+            <div class="sidebar-bottom">
+                <div class="sidebar-help">
+                    <span class="help-icon">?</span>
+                    <div><strong>Staff workspace</strong><span>Keep today's service moving</span></div>
+                </div>
+                <button type="button" id="logoutButton" class="logout-button"><span>↪</span>Logout</button>
+            </div>
+        </aside>
+
+        <main class="dashboard-main">
+            <header class="dashboard-header" id="overview">
+                <div>
+                    <p class="eyebrow">STAFF PORTAL</p>
+                    <h1>Good to see you, <span id="staffName">Staff</span></h1>
+                    <p class="header-subtitle">Plan today’s menu, monitor availability and keep hall service on track.
+                    </p>
+                </div>
+                <div class="header-profile">
+                    <div class="profile-avatar"><span id="avatarInitial">S</span></div>
+                    <div class="profile-info"><strong id="profileName">Staff</strong><span id="profileRole">Staff</span>
+                    </div>
+                </div>
+            </header>
+
+            <div id="staffMessage" class="dashboard-message" role="status" aria-live="polite">Loading your staff
+                workspace...</div>
+
+            <!-- QR SCANNER SECTION -->
+            <section class="dashboard-section" id="qr-scanner" aria-labelledby="qrScannerTitle">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">MEAL VERIFICATION</p>
+                        <h2 id="qrScannerTitle">Scan QR codes</h2>
+                    </div>
+                </div>
+                <div class="qr-scanner-card">
+                    <div class="qr-scanner-mode">
+                        <button type="button" id="startScannerButton" class="staff-primary-button">📷 Start Scanner</button>
+                        <button type="button" id="stopScannerButton" class="staff-primary-button" style="background: #c9682d; display: none;">⏹ Stop Scanner</button>
+                    </div>
+
+                    <div id="qrScannerContainer" style="display: none; margin-top: 20px;">
+                        <div id="qr-reader" style="width: 100%; max-width: 500px; margin: 0 auto; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(36, 57, 45, 0.12);"></div>
+                        <div id="scannerStatus" class="scanner-status" style="text-align: center; margin-top: 16px; padding: 12px; border-radius: 8px; background: #e8f0d4; color: #527044; font-weight: 600; display: none;">Scanning...</div>
+                    </div>
+
+                    <div id="scanResults" style="display: none; margin-top: 24px;">
+                        <div class="scan-result-card">
+                            <h3>Reservation Details</h3>
+                            <div style="display: grid; gap: 12px; margin-top: 16px;">
+                                <div><strong>Reservation ID:</strong> <span id="scannedReservationId">-</span></div>
+                                <div><strong>Student Name:</strong> <span id="scannedStudentName">-</span></div>
+                                <div><strong>Meal:</strong> <span id="scannedMealName">-</span></div>
+                                <div><strong>Hall:</strong> <span id="scannedHallName">-</span></div>
+                                <div><strong>Status:</strong> <span id="scannedStatus" style="padding: 4px 8px; border-radius: 4px; background: #e8f0d4; color: #527044; font-weight: 600;">Reserved</span></div>
+                            </div>
+                            <div style="display: flex; gap: 12px; margin-top: 20px;">
+                                <button type="button" id="confirmCollectionButton" class="staff-primary-button" style="flex: 1;">✓ Mark Collected</button>
+                                <button type="button" id="dismissResultButton" class="staff-row-button" style="flex: 1;">Cancel</button>
+                            </div>
+                        </div>
+                        <div id="scanResultMessage" class="form-status" style="text-align: center; margin-top: 12px;"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="dashboard-section staff-hero-section" aria-labelledby="serviceStatusTitle">
+                <div class="staff-hero-copy">
+                    <p class="eyebrow">SERVICE CONTROL</p>
+                    <h2 id="serviceStatusTitle">Today at a glance</h2>
+                    <p>Keep every meal visible, available and ready for students.</p>
+                </div>
+                <div class="staff-date" id="todayDate">Today</div>
+            </section>
+
+            <section class="dashboard-section" id="service-status" aria-label="Meal service overview">
+                <div class="staff-stat-grid">
+                    <article class="staff-stat-card"><span class="staff-stat-icon meal-icon">◉</span>
+                        <div><span class="card-label">TODAY'S MEALS</span><strong
+                                id="mealTotal">0</strong><small>Published on the menu</small></div>
+                    </article>
+                    <article class="staff-stat-card"><span class="staff-stat-icon reservation-icon">▣</span>
+                        <div><span class="card-label">AVAILABLE SEATS</span><strong
+                                id="availableSeats">0</strong><small>Across today's meals</small></div>
+                    </article>
+                    <article class="staff-stat-card"><span class="staff-stat-icon account-icon">✓</span>
+                        <div><span class="card-label">SERVICE STATUS</span><strong
+                                id="serviceStatus">Ready</strong><small id="serviceStatusHint">Menu is in sync</small>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="dashboard-section" id="payments" aria-labelledby="paymentsTitle">
+                <div class="section-heading"><div><p class="eyebrow">BKASH TRANSACTIONS</p><h2 id="paymentsTitle">Published meal payments</h2><p>Confirmed charges for your published meals; funds settle to the configured merchant.</p></div><button type="button" class="section-button" id="refreshPaymentsButton">Refresh</button></div>
+                <div id="paymentList" class="staff-meal-list"><div class="empty-state"><div class="empty-icon">৳</div><h3>Loading payments…</h3></div></div>
+            </section>
+
+            <section class="dashboard-section" id="menu-management" aria-labelledby="menuManagementTitle">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">MENU MANAGEMENT</p>
+                        <h2 id="menuManagementTitle">Today’s meal schedule</h2>
+                    </div><button type="button" class="section-button" id="refreshMealsButton">Refresh</button>
+                </div>
+                <div id="mealList" class="staff-meal-list">
+                    <div class="empty-state">
+                        <div class="empty-icon">◫</div>
+                        <h3>Loading today’s menu...</h3>
+                        <p>We are syncing the latest meal schedule.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="dashboard-section staff-create-section" aria-labelledby="createMealTitle">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">ADD TO MENU</p>
+                        <h2 id="createMealTitle">Publish a new meal</h2>
+                    </div>
+                </div>
+                <form id="createMealForm" class="meal-form">
+                    <div class="meal-form-grid">
+                        <div class="form-group"><label for="mealDate">Meal date</label><input id="mealDate"
+                                name="meal_date" type="date" required></div>
+                        <div class="form-group"><label for="mealType">Meal type</label><select id="mealType"
+                                name="meal_type" required>
+                                <option value="breakfast">Breakfast</option>
+                                <option value="lunch" selected>Lunch</option>
+                                <option value="dinner">Dinner</option>
+                            </select></div>
+                        <div class="form-group meal-form-wide"><label for="menuName">Menu name</label><input
+                                id="menuName" name="menu_name" type="text" maxlength="150"
+                                placeholder="e.g. Rice, chicken curry & fresh vegetables" required></div>
+                        <div class="form-group meal-form-wide"><label for="description">Description
+                                <span>(optional)</span></label><textarea id="description" name="description" rows="3"
+                                maxlength="500" placeholder="Add a short description for students"></textarea></div>
+                        <div class="form-group"><label for="capacity">Capacity</label><input id="capacity"
+                                name="capacity" type="number" min="0" step="1" placeholder="100" required></div>
+                        <div class="form-group"><label for="mealPrice">Meal price (৳)</label><input id="mealPrice"
+                                name="price" type="number" min="0.01" max="99999.99" step="0.01" placeholder="50.00" required></div>
+                        <div class="form-group"><label for="reservationDeadline">Reservation & cancellation deadline
+                                <span>(auto: previous day, 11:30 PM)</span></label><input id="reservationDeadline"
+                                name="reservation_deadline" type="datetime-local"></div>
+                    </div>
+                    <div class="meal-form-footer">
+                        <p id="formStatus" class="form-status" role="status" aria-live="polite"></p><button
+                            type="submit" class="staff-primary-button" id="createMealButton">Publish meal <span
+                                aria-hidden="true">→</span></button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="dashboard-section" id="complaints" aria-labelledby="complaintsTitle">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">STUDENT FEEDBACK</p>
+                        <h2 id="complaintsTitle">Complaints from your hall</h2>
+                    </div>
+                    <button type="button" class="section-button" id="refreshComplaintsButton">Refresh</button>
+                </div>
+                <div id="complaintList" class="complaint-list">
+                    <div class="empty-state">
+                        <div class="empty-icon">!</div>
+                        <h3>Loading complaints...</h3>
+                        <p>We are checking for complaints from your hall.</p>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="dashboard-footer"><span>© 2026 FoodFlow</span><span>Smart Hall Meal Management System</span>
+            </footer>
+        </main>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <!-- ==========================================
+         Custom Logout Modal
+    =========================================== -->
+
+    <div id="logoutModal" class="modal-overlay" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Confirm Logout</h2>
+                    <button type="button" class="modal-close" aria-label="Close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to logout?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="modal-button modal-button-cancel">Cancel</button>
+                    <button type="button" class="modal-button modal-button-confirm">Yes, Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="js/config.js"></script>
+    <script src="js/staff-dashboard.js"></script>
+</body>
+
+</html>

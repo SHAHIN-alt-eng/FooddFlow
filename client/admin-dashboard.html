@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FoodFlow admin operations dashboard">
+    <title>FoodFlow | Admin Dashboard</title>
+    <link rel="stylesheet" href="css/style.css?v=20260922-final">
+    <style>
+        /* =====================================================
+           Custom Logout Modal
+           ===================================================== */
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(40, 58, 43, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(3px);
+            animation: modalFadeIn 0.2s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-dialog {
+            width: 90%;
+            max-width: 420px;
+            animation: modalSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes modalSlideIn {
+            from { transform: scale(0.95) translateY(-20px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(40, 58, 43, 0.15);
+            overflow: hidden;
+            border: 1px solid rgba(40, 58, 43, 0.08);
+        }
+
+        .modal-header {
+            padding: 24px 24px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(40, 58, 43, 0.08);
+        }
+
+        .modal-title {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: #283a2b;
+            letter-spacing: -0.2px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #858b82;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(40, 58, 43, 0.06);
+            color: #283a2b;
+        }
+
+        .modal-body {
+            padding: 24px;
+            color: #52623f;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .modal-body p {
+            margin: 0;
+        }
+
+        .modal-footer {
+            padding: 18px 24px 24px;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .modal-button {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: 0.3px;
+        }
+
+        .modal-button-cancel {
+            background: #f0f1ed;
+            color: #52623f;
+            border: 1px solid rgba(40, 58, 43, 0.12);
+        }
+
+        .modal-button-cancel:hover {
+            background: #e8eae4;
+            transform: translateY(-1px);
+        }
+
+        .modal-button-confirm {
+            background: linear-gradient(135deg, #b25948 0%, #a04a3d 100%);
+            color: #ffffff;
+        }
+
+        .modal-button-confirm:hover {
+            background: linear-gradient(135deg, #a04a3d 0%, #8f3d34 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px rgba(178, 89, 72, 0.25);
+        }
+
+        .modal-button-confirm:active {
+            transform: translateY(0);
+        }
+
+        /* =====================================================
+           Complaint Box (shared styling)
+           ===================================================== */
+
+        .complaint-form .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .complaint-form label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #52623f;
+        }
+
+        .complaint-form input,
+        .complaint-form textarea {
+            padding: 12px 14px;
+            border: 1px solid #dfe3d9;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            background: #fffcf8;
+            color: #2d4034;
+        }
+
+        .complaint-form textarea {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        .complaint-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .complaint-item {
+            border: 1px solid #e6e8e2;
+            border-radius: 14px;
+            padding: 16px 18px;
+            background: #ffffff;
+            box-shadow: 0 7px 25px rgba(36, 57, 45, 0.04);
+        }
+
+        .complaint-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+
+        .complaint-item-header h3 {
+            margin: 0;
+            font-size: 15px;
+            color: #2d4034;
+        }
+
+        .complaint-item-meta {
+            font-size: 11px;
+            color: #858e88;
+            margin-top: 4px;
+        }
+
+        .complaint-message {
+            font-size: 14px;
+            color: #4a5a44;
+            line-height: 1.5;
+            margin: 8px 0;
+            white-space: pre-wrap;
+        }
+
+        .complaint-response {
+            margin-top: 10px;
+            padding: 10px 12px;
+            background: #f4f6f0;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #4a5a44;
+        }
+
+        .complaint-status {
+            padding: 5px 10px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 750;
+            text-transform: capitalize;
+            white-space: nowrap;
+        }
+
+        .complaint-status.status-pending {
+            background: #f7e9d0;
+            color: #a1701f;
+        }
+
+        .complaint-status.status-in_progress {
+            background: #dbe7f7;
+            color: #2c5da1;
+        }
+
+        .complaint-status.status-resolved {
+            background: #e8f0d4;
+            color: #527044;
+        }
+
+        .complaint-manage-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .complaint-manage-actions select {
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid #dfe3d9;
+            font-size: 13px;
+            font-family: inherit;
+        }
+
+        .complaint-manage-actions textarea {
+            flex: 1;
+            min-width: 200px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid #dfe3d9;
+            font-size: 13px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .complaint-manage-actions button {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            background: #294333;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .complaint-manage-actions button:hover {
+            background: #1f3327;
+        }
+
+    </style>
+    <style>
+        /* =====================================================
+           Custom Logout Modal
+           ===================================================== */
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(40, 58, 43, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(3px);
+            animation: modalFadeIn 0.2s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-dialog {
+            width: 90%;
+            max-width: 420px;
+            animation: modalSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes modalSlideIn {
+            from { transform: scale(0.95) translateY(-20px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(40, 58, 43, 0.15);
+            overflow: hidden;
+            border: 1px solid rgba(40, 58, 43, 0.08);
+        }
+
+        .modal-header {
+            padding: 24px 24px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(40, 58, 43, 0.08);
+        }
+
+        .modal-title {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: #283a2b;
+            letter-spacing: -0.2px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #858b82;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(40, 58, 43, 0.06);
+            color: #283a2b;
+        }
+
+        .modal-body {
+            padding: 24px;
+            color: #52623f;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .modal-body p {
+            margin: 0;
+        }
+
+        .modal-footer {
+            padding: 18px 24px 24px;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .modal-button {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: 0.3px;
+        }
+
+        .modal-button-cancel {
+            background: #f0f1ed;
+            color: #52623f;
+            border: 1px solid rgba(40, 58, 43, 0.12);
+        }
+
+        .modal-button-cancel:hover {
+            background: #e8eae4;
+            transform: translateY(-1px);
+        }
+
+        .modal-button-confirm {
+            background: linear-gradient(135deg, #b25948 0%, #a04a3d 100%);
+            color: #ffffff;
+        }
+
+        .modal-button-confirm:hover {
+            background: linear-gradient(135deg, #a04a3d 0%, #8f3d34 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px rgba(178, 89, 72, 0.25);
+        }
+
+        .modal-button-confirm:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+
+<body class="dashboard-page admin-dashboard-page">
+
+    <div class="dashboard-app">
+
+        <!-- ================= SIDEBAR ================= -->
+
+        <aside class="dashboard-sidebar">
+
+            <a href="admin-dashboard.html" class="dashboard-brand"
+                aria-label="FoodFlow admin dashboard">
+
+                <img class="brand-logo"
+                    src="assets/foodflow-logo.svg"
+                    alt="FoodFlow">
+
+                <span class="brand-name">
+                    <span class="brand-food">Food</span>
+                    <span class="brand-flow">Flow</span>
+                </span>
+
+            </a>
+
+            <nav class="dashboard-nav" aria-label="Admin navigation">
+
+                <p class="nav-label">ADMIN CONTROL</p>
+
+                <!-- Module 01 -->
+                <a href="#overview" class="nav-item active">
+                    <span class="nav-icon">◈</span>
+                    <span>Overview</span>
+                </a>
+
+                <a href="#user-management" class="nav-item">
+                    <span class="nav-icon">◉</span>
+                    <span>User Management</span>
+                </a>
+
+                <a href="#staff-management" class="nav-item">
+                    <span class="nav-icon">◉</span>
+                    <span>Staff Management</span>
+                </a>
+
+                <!-- Module 02 -->
+                <a href="#meal-operations" class="nav-item">
+                    <span class="nav-icon">◉</span>
+                    <span>Meal Management</span>
+                </a>
+
+                <a href="#reservation-management" class="nav-item">
+                    <span class="nav-icon">▣</span>
+                    <span>Reservations</span>
+                </a>
+
+                <a href="#publish-meal" class="nav-item">
+                    <span class="nav-icon">+</span>
+                    <span>Publish Meal</span>
+                </a>
+
+                <a href="#complaints" class="nav-item">
+                    <span class="nav-icon">!</span>
+                    <span>Complaints</span>
+                </a>
+
+            </nav>
+
+            <div class="sidebar-bottom">
+
+                <div class="sidebar-help">
+
+                    <span class="help-icon">!</span>
+
+                    <div>
+                        <strong>Admin workspace</strong>
+                        <span>System-wide meal control</span>
+                    </div>
+
+                </div>
+
+                <button type="button"
+                    id="logoutButton"
+                    class="logout-button">
+
+                    <span>↪</span>
+                    Logout
+
+                </button>
+
+            </div>
+
+        </aside>
+
+
+        <!-- ================= MAIN ================= -->
+
+        <main class="dashboard-main">
+
+            <!-- HEADER -->
+
+            <header class="dashboard-header" id="overview">
+
+                <div>
+
+                    <p class="eyebrow">ADMIN PORTAL</p>
+
+                    <h1>
+                        Good to see you,
+                        <span id="adminName">Admin</span>
+                    </h1>
+
+                    <p class="header-subtitle">
+                        Oversee the meal service, manage users and monitor
+                        Hall reservations.
+                    </p>
+
+                </div>
+
+                <div class="header-profile">
+
+                    <div class="profile-avatar">
+                        <span id="avatarInitial">A</span>
+                    </div>
+
+                    <div class="profile-info">
+                        <strong id="profileName">Admin</strong>
+                        <span id="profileRole">Admin</span>
+                    </div>
+
+                </div>
+
+            </header>
+
+
+            <!-- MESSAGE -->
+
+            <div id="adminMessage"
+                class="dashboard-message"
+                role="status"
+                aria-live="polite">
+
+                Loading your admin workspace...
+
+            </div>
+
+
+            <!-- BACK TO DASHBOARD (shown on module views only) -->
+
+            <div class="admin-back-bar" id="adminBackBar" hidden>
+                <a href="#overview" class="admin-back-link">
+                    <span aria-hidden="true">←</span>
+                    Back to dashboard
+                </a>
+            </div>
+
+
+            <!-- ================= SYSTEM OVERVIEW ================= -->
+
+            <section class="dashboard-section admin-hero-section"
+                data-view="overview"
+                aria-labelledby="adminOverviewTitle">
+
+                <div>
+
+                    <p class="eyebrow">SYSTEM OVERVIEW</p>
+
+                    <h2 id="adminOverviewTitle">
+                        Operations at a glance
+                    </h2>
+
+                    <p>
+                        Monitor users, today's meals and Hall reservation
+                        activity.
+                    </p>
+
+                </div>
+
+                <div class="admin-status-pill">
+
+                    <span></span>
+
+                    <strong>
+                        System operational
+                    </strong>
+
+                </div>
+
+            </section>
+
+
+            <!-- ================= STATISTICS ================= -->
+
+            <section class="dashboard-section"
+                data-view="overview"
+                aria-label="Admin statistics">
+
+                <div class="admin-stat-grid">
+
+
+                    <!-- Total Students -->
+
+                    <article class="admin-stat-card"
+                        data-target="user-management"
+                        data-filter="userRoleFilter=student"
+                        role="button"
+                        tabindex="0"
+                        aria-label="Open User Management">
+
+                        <span class="admin-stat-icon account-icon">
+                            ◉
+                        </span>
+
+                        <div>
+
+                            <span class="card-label">
+                                TOTAL STUDENTS
+                            </span>
+
+                            <strong id="studentTotal">
+                                0
+                            </strong>
+
+                            <small>
+                                Registered students
+                            </small>
+
+                        </div>
+
+                    </article>
+
+
+                    <!-- Total Staff -->
+
+                    <article class="admin-stat-card"
+                        data-target="staff-management"
+                        role="button"
+                        tabindex="0"
+                        aria-label="Open Staff Management">
+
+                        <span class="admin-stat-icon account-icon">
+                            ◉
+                        </span>
+
+                        <div>
+
+                            <span class="card-label">
+                                TOTAL STAFF
+                            </span>
+
+                            <strong id="staffTotal">
+                                0
+                            </strong>
+
+                            <small>
+                                Registered cafeteria staff
+                            </small>
+
+                        </div>
+
+                    </article>
+
+
+                    <!-- Published Meals -->
+
+                    <article class="admin-stat-card"
+                        data-target="meal-operations"
+                        role="button"
+                        tabindex="0"
+                        aria-label="Open Meal Management">
+
+                        <span class="admin-stat-icon meal-icon">
+                            ◉
+                        </span>
+
+                        <div>
+
+                            <span class="card-label">
+                                PUBLISHED MEALS
+                            </span>
+
+                            <strong id="publishedMealTotal">
+                                0
+                            </strong>
+
+                            <small>
+                                Available meal schedules
+                            </small>
+
+                        </div>
+
+                    </article>
+
+
+                    <!-- Today's Reservations -->
+
+                    <article class="admin-stat-card"
+                        data-target="reservation-management"
+                        data-filter="reservationStatusFilter=all"
+                        role="button"
+                        tabindex="0"
+                        aria-label="Open Reservation Management">
+
+                        <span class="admin-stat-icon reservation-icon">
+                            ▣
+                        </span>
+
+                        <div>
+
+                            <span class="card-label">
+                                TOMORROW'S RESERVATIONS
+                            </span>
+
+                            <strong id="reservationTotal">
+                                0
+                            </strong>
+
+                            <small>
+                                Reservations for tomorrow's meals
+                            </small>
+
+                        </div>
+
+                    </article>
+
+
+                    <!-- Meal Remaining -->
+
+                    <article class="admin-stat-card"
+                        data-target="meal-operations"
+                        role="button"
+                        tabindex="0"
+                        aria-label="Open Meal Management">
+
+                        <span class="admin-stat-icon meal-icon">
+                            ◌
+                        </span>
+
+                        <div>
+
+                            <span class="card-label">
+                                MEAL REMAINING
+                            </span>
+
+                            <strong id="mealRemaining">
+                                0
+                            </strong>
+
+                        </div>
+
+                    </article>
+
+
+                    <!-- Cancelled Reservations -->
+
+                    <article class="admin-stat-card"
+                        data-target="reservation-management"
+                        data-filter="reservationStatusFilter=cancelled"
+                        role="button"
+                        tabindex="0"
+                        aria-label="Open Reservation Management">
+
+                        <span class="admin-stat-icon account-icon">
+                            ×
+                        </span>
+
+                        <div>
+
+                            <span class="card-label">
+                                CANCELLED
+                            </span>
+
+                            <strong id="cancelledReservations">
+                                0
+                            </strong>
+
+                            <small>
+                                Cancelled reservations
+                            </small>
+
+                        </div>
+
+                    </article>
+
+
+                    <!-- Collected Reservations -->
+
+                    <article class="admin-stat-card"
+                        data-target="reservation-management"
+                        data-filter="reservationStatusFilter=completed"
+                        role="button"
+                        tabindex="0"
+                        aria-label="Open Reservation Management">
+
+                        <span class="admin-stat-icon reservation-icon">
+                            ✓
+                        </span>
+
+                        <div>
+
+                            <span class="card-label">
+                                COLLECTED
+                            </span>
+
+                            <strong id="collectedReservations">
+                                0
+                            </strong>
+
+                            <small>
+                                Completed meal collections
+                            </small>
+
+                        </div>
+
+                    </article>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- ================================================= -->
+            <!-- MODULE 01 : USER MANAGEMENT -->
+            <!-- ================================================= -->
+
+            <section class="dashboard-section"
+                id="user-management"
+                data-view="user-management"
+                aria-labelledby="userManagementTitle">
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            MODULE 01
+                        </p>
+
+                        <h2 id="userManagementTitle">
+                            User Management
+                        </h2>
+
+                    </div>
+
+                    <button type="button"
+                        class="section-button"
+                        id="refreshUsersButton">
+
+                        Refresh
+
+                    </button>
+
+                </div>
+
+
+                <!-- Search / Filter -->
+
+                <div class="admin-form-grid">
+
+                    <div class="form-group">
+
+                        <label for="userSearch">
+                            Search user
+                        </label>
+
+                        <input
+                            id="userSearch"
+                            type="text"
+                            placeholder="Search by name or student ID">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="userRoleFilter">
+                            Role
+                        </label>
+
+                        <select id="userRoleFilter">
+
+                            <option value="all">
+                                All Users
+                            </option>
+
+                            <option value="student">
+                                Student
+                            </option>
+
+                            <option value="staff">
+                                Staff
+                            </option>
+
+                            <option value="admin">
+                                Admin
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="userStatusFilter">
+                            Account Status
+                        </label>
+
+                        <select id="userStatusFilter">
+
+                            <option value="all">
+                                All Status
+                            </option>
+
+                            <option value="active">
+                                Active
+                            </option>
+
+                            <option value="inactive">
+                                Inactive
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <!-- User List -->
+
+                <div id="userList"
+                    class="admin-meal-list">
+
+                    <div class="empty-state">
+
+                        <div class="empty-icon">
+                            ◉
+                        </div>
+
+                        <h3>
+                            No users loaded
+                        </h3>
+
+                        <p>
+                            Registered students and staff will appear here.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- ================================================= -->
+            <!-- STAFF MANAGEMENT -->
+            <!-- ================================================= -->
+
+            <section class="dashboard-section"
+                id="staff-management"
+                data-view="staff-management"
+                aria-labelledby="staffManagementTitle">
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            STAFF ACCESS
+                        </p>
+
+                        <h2 id="staffManagementTitle">
+                            Staff Management
+                        </h2>
+
+                    </div>
+
+                    <button type="button"
+                        class="section-button"
+                        id="refreshStaffButton">
+
+                        Refresh
+
+                    </button>
+
+                </div>
+
+                <p class="section-note">
+                    Staff accounts can only be created by an admin here —
+                    hall staff can no longer self-register on the sign-up page.
+                </p>
+
+                <!-- Create Staff Form -->
+
+                <form id="createStaffForm" class="admin-form-grid">
+
+                    <div class="form-group">
+                        <label for="staffName">Full name</label>
+                        <input id="staffName" name="name" type="text" autocomplete="off" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="staffEmail">Email address</label>
+                        <input id="staffEmail" name="email" type="email" autocomplete="off" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="staffPassword">Temporary password</label>
+                        <input id="staffPassword" name="password" type="password"
+                            autocomplete="new-password" placeholder="8+ characters" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="staffHall">Assigned hall</label>
+                        <select id="staffHall" name="hall_name" required>
+                            <option value="">Select a hall</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" id="createStaffButton" class="section-button">
+                        Create staff account <span aria-hidden="true">→</span>
+                    </button>
+
+                </form>
+
+                <p id="staffFormStatus" class="form-status" role="status" aria-live="polite"></p>
+
+                <!-- Staff List -->
+
+                <div id="staffList"
+                    class="admin-meal-list">
+
+                    <div class="empty-state">
+
+                        <div class="empty-icon">
+                            ◉
+                        </div>
+
+                        <h3>
+                            Staff management
+                        </h3>
+
+                        <p>
+                            Staff accounts and their access status will
+                            appear here.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- ================================================= -->
+            <!-- MODULE 02 : MEAL MANAGEMENT -->
+            <!-- ================================================= -->
+
+            <section class="dashboard-section"
+                id="meal-operations"
+                data-view="meal-operations"
+                aria-labelledby="mealOperationsTitle">
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            MODULE 02
+                        </p>
+
+                        <h2 id="mealOperationsTitle">
+                            Meal Management
+                        </h2>
+
+                    </div>
+
+                    <button type="button"
+                        class="section-button"
+                        id="refreshMealsButton">
+
+                        Refresh
+
+                    </button>
+
+                </div>
+
+
+                <div id="mealList"
+                    class="admin-meal-list">
+
+                    <div class="empty-state">
+
+                        <div class="empty-icon">
+                            ◫
+                        </div>
+
+                        <h3>
+                            Loading today's schedule...
+                        </h3>
+
+                        <p>
+                            We are syncing the latest meal information.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- ================================================= -->
+            <!-- RESERVATION MANAGEMENT -->
+            <!-- ================================================= -->
+
+            <section class="dashboard-section"
+                id="reservation-management"
+                data-view="reservation-management"
+                aria-labelledby="reservationManagementTitle">
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            RESERVATION MONITORING
+                        </p>
+
+                        <h2 id="reservationManagementTitle">
+                            Reservation Management
+                        </h2>
+
+                    </div>
+
+                    <button type="button"
+                        class="section-button"
+                        id="refreshReservationsButton">
+
+                        Refresh
+
+                    </button>
+
+                </div>
+
+
+                <!-- Reservation Filters -->
+
+                <div class="admin-form-grid">
+
+                    <div class="form-group">
+
+                        <label for="reservationSearch">
+                            Search Student
+                        </label>
+
+                        <input
+                            id="reservationSearch"
+                            type="text"
+                            placeholder="Student ID or name">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="reservationMealFilter">
+                            Meal
+                        </label>
+
+                        <select id="reservationMealFilter">
+
+                            <option value="all">
+                                All Meals
+                            </option>
+
+                            <option value="breakfast">
+                                Breakfast
+                            </option>
+
+                            <option value="lunch">
+                                Lunch
+                            </option>
+
+                            <option value="dinner">
+                                Dinner
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="reservationStatusFilter">
+                            Reservation Status
+                        </label>
+
+                        <select id="reservationStatusFilter">
+
+                            <option value="all">
+                                All
+                            </option>
+
+                            <option value="booked">
+                                Booked
+                            </option>
+
+                            <option value="pending_payment">
+                                Payment pending
+                            </option>
+
+                            <option value="cancelled">
+                                Cancelled
+                            </option>
+
+                            <option value="completed">
+                                Completed
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Reservation List -->
+
+                <div id="reservationList"
+                    class="admin-meal-list">
+
+                    <div class="empty-state">
+
+                        <div class="empty-icon">
+                            ▣
+                        </div>
+
+                        <h3>
+                            No reservations loaded
+                        </h3>
+
+                        <p>
+                            Student meal reservations will appear here.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- ================================================= -->
+            <!-- PUBLISH MEAL -->
+            <!-- ================================================= -->
+
+            <section class="dashboard-section admin-create-section"
+                id="publish-meal"
+                data-view="meal-operations"
+                aria-labelledby="publishMealTitle">
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            SERVICE MANAGEMENT
+                        </p>
+
+                        <h2 id="publishMealTitle">
+                            Publish a Meal
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <form id="createMealForm"
+                    class="admin-meal-form">
+
+
+                    <div class="admin-form-grid">
+
+
+                        <!-- Date -->
+
+                        <div class="form-group">
+
+                            <label for="mealDate">
+                                Meal date
+                            </label>
+
+                            <input
+                                id="mealDate"
+                                name="meal_date"
+                                type="date"
+                                required>
+
+                        </div>
+
+
+                        <!-- Meal Type -->
+
+                        <div class="form-group">
+
+                            <label for="mealType">
+                                Meal type
+                            </label>
+
+                            <select
+                                id="mealType"
+                                name="meal_type"
+                                required>
+
+                                <option value="breakfast">
+                                    Breakfast
+                                </option>
+
+                                <option value="lunch"
+                                    selected>
+                                    Lunch
+                                </option>
+
+                                <option value="dinner">
+                                    Dinner
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- Hall -->
+
+                        <div class="form-group">
+
+                            <label for="mealHall">
+                                Hall
+                            </label>
+
+                            <select
+                                id="mealHall"
+                                name="hall_name"
+                                required>
+
+                                <option value="">
+                                    Select hall
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- Menu Name -->
+
+                        <div class="form-group admin-form-wide">
+
+                            <label for="menuName">
+                                Menu name
+                            </label>
+
+                            <input
+                                id="menuName"
+                                name="menu_name"
+                                type="text"
+                                maxlength="150"
+                                placeholder="e.g. Rice, chicken curry & fresh vegetables"
+                                required>
+
+                        </div>
+
+
+                        <!-- Description -->
+
+                        <div class="form-group admin-form-wide">
+
+                            <label for="description">
+                                Description
+                                <span>
+                                    (optional)
+                                </span>
+                            </label>
+
+                            <textarea
+                                id="description"
+                                name="description"
+                                rows="3"
+                                maxlength="500"
+                                placeholder="Describe the meal for students">
+                            </textarea>
+
+                        </div>
+
+
+                        <!-- Capacity -->
+
+                        <div class="form-group">
+
+                            <label for="capacity">
+                                Capacity
+                            </label>
+
+                            <input
+                                id="capacity"
+                                name="capacity"
+                                type="number"
+                                min="0"
+                                step="1"
+                                placeholder="100"
+                                required>
+
+                        </div>
+
+
+                        <!-- Meal Price -->
+
+                        <div class="form-group">
+
+                            <label for="mealPrice">
+                                Meal price (৳)
+                            </label>
+
+                            <input
+                                id="mealPrice"
+                                name="price"
+                                type="number"
+                                min="0.01"
+                                max="99999.99"
+                                step="0.01"
+                                placeholder="40.00"
+                                required>
+
+                        </div>
+
+
+                        <!-- Deadline -->
+
+                        <div class="form-group">
+
+                            <label for="reservationDeadline">
+                                Reservation & cancellation deadline
+                                <span>
+                                    (set automatically: previous day, 11:30 PM)
+                                </span>
+                            </label>
+
+                            <input
+                                id="reservationDeadline"
+                                name="reservation_deadline"
+                                type="datetime-local">
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="admin-form-footer">
+
+                        <p id="formStatus"
+                            class="form-status"
+                            role="status"
+                            aria-live="polite">
+                        </p>
+
+                        <button
+                            type="submit"
+                            class="admin-primary-button"
+                            id="createMealButton">
+
+                            Publish meal
+
+                            <span aria-hidden="true">
+                                →
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+
+            <!-- ================= COMPLAINTS ================= -->
+
+            <section class="dashboard-section" id="complaints" data-view="complaints" aria-labelledby="complaintsTitle">
+
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">STUDENT FEEDBACK</p>
+                        <h2 id="complaintsTitle">All complaints</h2>
+                    </div>
+                    <button type="button" class="section-button" id="refreshComplaintsButton">Refresh</button>
+                </div>
+
+                <div class="complaint-manage-actions" style="margin-bottom: 16px;">
+                    <select id="complaintStatusFilter">
+                        <option value="all">All statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="in_progress">In progress</option>
+                        <option value="resolved">Resolved</option>
+                    </select>
+                </div>
+
+                <div id="complaintList" class="complaint-list">
+                    <div class="empty-state">
+                        <div class="empty-icon">!</div>
+                        <h3>Loading complaints...</h3>
+                        <p>We are checking for complaints across every hall.</p>
+                    </div>
+                </div>
+
+            </section>
+
+
+
+            <!-- ================= FOOTER ================= -->
+
+            <footer class="dashboard-footer">
+
+                <span>
+                    © 2026 FoodFlow
+                </span>
+
+                <span>
+                    Smart Hall Meal Management System
+                </span>
+
+            </footer>
+
+        </main>
+
+    </div>
+
+
+    <!-- Toast -->
+
+    <div id="toast"
+        class="toast"
+        role="status"
+        aria-live="polite">
+    </div>
+
+    <!-- ==========================================
+         Custom Logout Modal
+    =========================================== -->
+
+    <div id="logoutModal" class="modal-overlay" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Confirm Logout</h2>
+                    <button type="button" class="modal-close" aria-label="Close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to logout?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="modal-button modal-button-cancel">Cancel</button>
+                    <button type="button" class="modal-button modal-button-confirm">Yes, Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         Delete Account Modal (students / staff)
+    =========================================== -->
+
+    <div id="deleteUserModal" class="modal-overlay" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Delete Account</h2>
+                    <button type="button" class="modal-close" aria-label="Close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Delete the <span id="deleteUserRole">user</span> account of
+                        <strong id="deleteUserName"></strong>
+                        (<span id="deleteUserEmail"></span>)?</p>
+                    <p class="modal-warning" id="deleteUserWarning"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="modal-button modal-button-cancel">Cancel</button>
+                    <button type="button" class="modal-button modal-button-confirm">Yes, Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/admin-dashboard.js?v=20260921b"></script>
+
+</body>
+
+</html>

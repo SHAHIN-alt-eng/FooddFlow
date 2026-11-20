@@ -1,0 +1,11 @@
+"use strict";
+const router = require("express").Router();
+const { authenticateToken, authorizeRoles } = require("../middlewares/authMiddleware");
+const admin = require("../controllers/adminController");
+router.use(authenticateToken, authorizeRoles("admin"));
+router.get("/overview", admin.getOverview);
+router.get("/users", admin.getUsers);
+router.get("/reservations", admin.getReservations);
+router.post("/staff", admin.createStaff);
+router.delete("/users/:id", admin.deleteUser);
+module.exports = router;
