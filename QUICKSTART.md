@@ -18,6 +18,7 @@ mysql -u root -p < database/schema.sql
 ```
 
 For an existing database, apply each unapplied migration in numeric order.
+Migration 008 fixes the meal deadline constraint and adds reservation QR tokens.
 
 ### Step 2: Configure Server (1 min)
 ```bash
@@ -59,6 +60,9 @@ npm run dev
 | Issue | Status | Details |
 |-------|--------|---------|
 | Missing QR token column | ✅ FIXED | Added to database schema |
+| Meal deadline constraint blocked publishing | ✅ FIXED | Deadline is before the meal date; see migration 008 |
+| QR missing after payment | ✅ FIXED | Payment result now loads and displays the reservation QR |
+| Date rollover near midnight | ✅ FIXED | Meal dates and deadlines use Bangladesh time |
 | Wrong status constant | ✅ FIXED | Changed "completed" to "collected" |
 | Missing environment config | ✅ FIXED | .env and .env.example created |
 | No QR styling | ✅ ENHANCED | 200+ lines of stylish CSS |
@@ -165,7 +169,7 @@ JWT_EXPIRES_IN=7d
 | MySQL connection error | Check MySQL running: `net start MySQL80` |
 | Port 5000 in use | Change PORT in .env |
 | Database not found | Run `source database/schema.sql` |
-| QR not showing | Clear browser cache, restart server |
+| QR not showing | Apply migration 008, confirm payment completed, then refresh the result page |
 | JWT error | Add JWT_SECRET to .env |
 | Table already exists | Database was already imported, that's fine |
 

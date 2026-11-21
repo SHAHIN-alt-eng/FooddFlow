@@ -3,6 +3,10 @@
 const crypto = require("crypto");
 const { db } = require("../config/db");
 const { verifyBkashPayment } = require("../utils/paymentValidation");
+const {
+  BANGLADESH_NOW_SQL,
+  BANGLADESH_TOMORROW_SQL
+} = require("../utils/bangladeshTime");
 
 const BKASH_BASE_URL = (
   process.env.BKASH_BASE_URL ||
@@ -111,13 +115,16 @@ async function getToken() {
   return data.id_token;
 }
 
-function paymentResultUrl(result, message) {
+function paymentResultUrl(result, message, reservationId) {
   const url = new URL(
     process.env.CLIENT_PAYMENT_RESULT_URL ||
       "http://localhost:5500/payment-result.html"
   );
   url.searchParams.set("result", result);
   url.searchParams.set("message", message);
+  if (reservationId) {
+    url.searchParams.set("reservationId", String(reservationId));
+  }
   return url.toString();
 }
 
@@ -202,8 +209,8 @@ async function createBkashPayment(req, res, next) {
     const [mealRows] = await connection.query(
       `SELECT id, meal_date, hall_name, menu_name, price, capacity,
               reserved_count, status, reservation_deadline, published_by,
-              (meal_date = DATE_ADD(CURDATE(), INTERVAL 1 DAY)) AS is_tomorrow,
-              (reservation_deadline <= CURRENT_TIMESTAMP) AS deadline_passed
+              (meal_date = ${BANGLADESH_TOMORROW_SQL}) AS is_tomorrow,
+              (reservation_deadline <= ${BANGLADESH_NOW_SQL}) AS deadline_passed
        FROM meals
        WHERE id = ?
        FOR UPDATE`,
@@ -427,7 +434,8 @@ async function completePayment(paymentId, responseData) {
     const [rows] = await connection.query(
       `SELECT p.id, p.status, p.amount, p.merchant_invoice_number,
               p.bkash_payment_id,
-              r.id AS reservation_id, r.status AS reservation_status
+              r.id AS reservation_id, r.status AS reservation_status,
+              r.qr_token
        FROM payments p
        INNER JOIN reservations r ON r.id = p.reservation_id
        WHERE p.bkash_payment_id = ?
@@ -484,6 +492,7 @@ async function completePayment(paymentId, responseData) {
         statusCode: 409
       });
     }
+    payment.qr_token = qrToken;
     await connection.commit();
     return payment;
   } catch (error) {
@@ -496,9 +505,12 @@ async function completePayment(paymentId, responseData) {
 
 async function executeBkashPayment(paymentId, expectedStudentId) {
   const [rows] = await db.query(
-    `SELECT id, student_id, status, amount, merchant_invoice_number, bkash_payment_id
-     FROM payments
-     WHERE bkash_payment_id = ?
+    `SELECT p.id, p.student_id, p.status, p.amount,
+            p.merchant_invoice_number, p.bkash_payment_id,
+            r.id AS reservation_id
+     FROM payments p
+     INNER JOIN reservations r ON r.id = p.reservation_id
+     WHERE p.bkash_payment_id = ?
      LIMIT 1`,
     [paymentId]
   );
@@ -561,13 +573,14 @@ async function executeBkashPayment(paymentId, expectedStudentId) {
 
 async function executeForStudent(req, res) {
   try {
-    await executeBkashPayment(
+    const payment = await executeBkashPayment(
       String(req.params.paymentId || "").trim(),
       req.user?.sub
     );
     return res.json({
       success: true,
-      message: "Payment completed. Your meal reservation is confirmed."
+      message: "Payment completed. Your meal reservation is confirmed.",
+      reservationId: payment.reservation_id
     });
   } catch (error) {
     return res.status(error.statusCode || 502).json({
@@ -599,9 +612,13 @@ async function bkashCallback(req, res) {
   }
 
   try {
-    await executeBkashPayment(paymentId);
+    const payment = await executeBkashPayment(paymentId);
     return res.redirect(
-      paymentResultUrl("success", "Payment completed and reservation confirmed.")
+      paymentResultUrl(
+        "success",
+        "Payment completed and reservation confirmed.",
+        payment.reservation_id
+      )
     );
   } catch (error) {
     return res.redirect(

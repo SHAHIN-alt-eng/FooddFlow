@@ -40,9 +40,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const HALLS = ["Shaheed President Zia Hall", "Abdul Hamid Hall", "Tinshed Hall", "Shohidul Hall", "Shere-e-Bangla A K Fazlul Haque Hall", "Selim Hall", "Male Hall-1", "Male Hall-2", "Male Hall-3", "Female Hall 1", "Female Hall 2"];
 
     function nextDayValue() {
-        const date = new Date();
-        date.setDate(date.getDate() + 1);
-        return date.toISOString().slice(0, 10);
+        return FoodFlowDate.tomorrowDateKey();
     }
 
     HALLS.forEach((hall) => mealHall?.add(new Option(hall, hall)));
@@ -365,7 +363,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     async function loadMeals() {
-        const date = document.getElementById("mealDate").value || new Date().toISOString().slice(0, 10);
+        const date = document.getElementById("mealDate").value || FoodFlowDate.dateKey();
         const data = await apiRequest(`/meals?date=${encodeURIComponent(date)}`);
         renderMeals(Array.isArray(data?.meals) ? data.meals : []);
     }

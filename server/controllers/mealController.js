@@ -1,6 +1,11 @@
 "use strict";
 
 const { db } = require("../config/db");
+const {
+    BANGLADESH_TOMORROW_SQL,
+    getBangladeshTomorrowDate,
+    getMealReservationDeadline
+} = require("../utils/bangladeshTime");
 
 const MEAL_TYPES = ["breakfast", "lunch", "dinner"];
 const MEAL_STATUSES = ["available", "closed", "cancelled"];
@@ -46,14 +51,6 @@ function mealIdFromRequest(req) {
 function validHall(value) {
     return typeof value === "string" && HALLS.includes(value.trim());
 }
-
-function tomorrowDateString() {
-    const tomorrow = new Date();
-    tomorrow.setHours(0, 0, 0, 0);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow.toISOString().slice(0, 10);
-}
-
 
 /* ---------------------------------------------------------
    Look up the hall a staff/admin/student account belongs to.
@@ -235,7 +232,7 @@ async function getTodaysMeals(req, res, next) {
                 reservation_deadline,
                 status
             FROM meals
-            WHERE meal_date = DATE_ADD(CURDATE(), INTERVAL 1 DAY)
+            WHERE meal_date = ${BANGLADESH_TOMORROW_SQL}
             AND status = 'available'
             ${hallFilter}
             ORDER BY
@@ -506,7 +503,7 @@ async function createMeal(req, res, next) {
             });
         }
 
-        if (cleanDate < tomorrowDateString()) {
+        if (cleanDate < getBangladeshTomorrowDate()) {
             return res.status(400).json({
                 success: false,
                 message: "Meals must be published at least one day in advance. Choose tomorrow or a future date."
@@ -516,16 +513,7 @@ async function createMeal(req, res, next) {
 
         // The booking/cancellation cutoff is fixed at 11:30 PM on the day
         // before the meal, regardless of the optional client form value.
-        const cleanDeadline = new Date(`${cleanDate}T00:00:00`);
-        cleanDeadline.setDate(cleanDeadline.getDate() - 1);
-        cleanDeadline.setHours(23, 30, 0, 0);
-
-        if (cleanDeadline === undefined) {
-            return res.status(400).json({
-                success: false,
-                message: "Reservation deadline must be a valid date and time."
-            });
-        }
+        const cleanDeadline = getMealReservationDeadline(cleanDate);
 
 
         /* ---------------------------------------------
@@ -804,11 +792,9 @@ async function updateMeal(req, res, next) {
             return res.status(400).json({ success: false, message: "Meal price must be between ৳0.01 and ৳99,999.99." });
         }
 
-        const cleanDeadline = new Date(`${updatedDate}T00:00:00`);
-        cleanDeadline.setDate(cleanDeadline.getDate() - 1);
-        cleanDeadline.setHours(23, 30, 0, 0);
+        const cleanDeadline = getMealReservationDeadline(updatedDate);
 
-        if (updatedDate < tomorrowDateString()) {
+        if (updatedDate < getBangladeshTomorrowDate()) {
             return res.status(400).json({
                 success: false,
                 message: "Meals must be scheduled for tomorrow or a future date."

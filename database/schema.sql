@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS meals (
   KEY idx_meals_deadline_status (reservation_deadline, status),
   KEY idx_meals_published_by (published_by),
   CONSTRAINT chk_meals_reserved_capacity CHECK (reserved_count <= capacity),
-  CONSTRAINT chk_meals_deadline CHECK (reservation_deadline >= TIMESTAMP(meal_date)),
+  CONSTRAINT chk_meals_deadline CHECK (reservation_deadline < TIMESTAMP(meal_date)),
   CONSTRAINT fk_meals_published_by FOREIGN KEY (published_by) REFERENCES users(id) ON DELETE SET NULL,
   CONSTRAINT chk_meals_price CHECK (price >= 0)
 ) ENGINE=InnoDB;
@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS reservations (
 
   collected_at DATETIME NULL,
 
-  qr_token VARCHAR(36) NULL UNIQUE,
+  qr_token VARCHAR(36) NULL,
 
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -80,6 +80,7 @@ CREATE TABLE IF NOT EXISTS reservations (
   PRIMARY KEY (id),
 
   UNIQUE KEY uq_reservations_user_meal (user_id, meal_id),
+  UNIQUE KEY uq_reservations_qr_token (qr_token),
 
   KEY idx_reservations_user_status (user_id, status),
 

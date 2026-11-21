@@ -44,7 +44,11 @@
         const response = await fetch(`${window.FOODFLOW_API_BASE_URL}/payments/bkash/execute/${encodeURIComponent(paymentId)}`, { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } });
         const data = await response.json().catch(() => ({}));
         if (!response.ok || !data.success) throw new Error(data.message || 'Payment could not be confirmed.');
-        location.assign('payment-result.html?result=success&message=Demo%20payment%20completed.%20Your%20reservation%20and%20QR%20are%20ready.');
+        const resultUrl = new URL('payment-result.html', location.href);
+        resultUrl.searchParams.set('result', 'success');
+        resultUrl.searchParams.set('message', 'Demo payment completed. Your reservation and QR are ready.');
+        resultUrl.searchParams.set('reservationId', String(data.reservationId));
+        location.assign(resultUrl);
       } catch (error) { status.textContent = error.message; status.className = 'form-status form-status-error'; }
     });
   </script>

@@ -18,9 +18,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const todayDate = document.getElementById("todayDate");
 
     function nextDayValue() {
-        const date = new Date();
-        date.setDate(date.getDate() + 1);
-        return date.toISOString().slice(0, 10);
+        return FoodFlowDate.tomorrowDateKey();
     }
     const createMealForm = document.getElementById("createMealForm");
     const createMealButton = document.getElementById("createMealButton");

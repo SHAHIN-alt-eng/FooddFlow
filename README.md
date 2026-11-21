@@ -68,6 +68,8 @@ exit
 
 For an existing database, apply unapplied SQL files in `database/migrations/`
 in numeric order. Do not re-run migrations that have already been applied.
+Migration `008_meal_deadline_and_qr_token.sql` corrects the meal cutoff rule and
+adds the reservation QR-token column required by current payment flows.
 
 #### 3. **Configure Environment**
 ```bash
@@ -274,10 +276,11 @@ Error: listen EADDRINUSE: address already in use :::5000
 **Solution**: Change PORT in .env or kill process on port 5000
 
 ### QR Code Not Showing
-- Clear browser cache
-- Ensure QRCode library is loaded
+- Apply unapplied database migrations, especially migration 008
+- Confirm the payment completed and the reservation has a `qr_token`
+- Ensure the QRCode library is loaded
 - Check browser console for errors
-- Verify qr_token in database
+- The QR token is shown on the payment success page and in the student dashboard
 
 ### JWT Secret Error
 ```

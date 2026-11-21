@@ -2,6 +2,10 @@
 
 const { db } = require("../config/db");
 const crypto = require("crypto");
+const {
+  BANGLADESH_DATE_SQL,
+  BANGLADESH_NOW_SQL
+} = require("../utils/bangladeshTime");
 
 const ACTIVE_STATUS = "reserved";
 const CANCELLED_STATUS = "cancelled";
@@ -74,7 +78,7 @@ async function reserveMeal(req, res, next) {
         reserved_count,
         reservation_deadline,
         status,
-        (reservation_deadline <= CURRENT_TIMESTAMP) AS deadline_passed
+        (reservation_deadline <= ${BANGLADESH_NOW_SQL}) AS deadline_passed
       FROM meals
       WHERE id = ?
       FOR UPDATE`,
@@ -380,7 +384,7 @@ async function cancelReservation(req, res, next) {
         r.meal_id,
         r.status,
         m.reservation_deadline,
-        (m.reservation_deadline <= CURRENT_TIMESTAMP) AS deadline_passed
+        (m.reservation_deadline <= ${BANGLADESH_NOW_SQL}) AS deadline_passed
        FROM reservations r
        INNER JOIN meals m ON m.id = r.meal_id
        WHERE r.id = ?
@@ -528,7 +532,7 @@ async function collectMeal(req, res, next) {
         m.meal_date,
         m.meal_type,
         m.menu_name,
-        (m.meal_date = CURDATE()) AS is_today
+        (m.meal_date = ${BANGLADESH_DATE_SQL}) AS is_today
       FROM reservations r
       INNER JOIN users u ON u.id = r.user_id
       INNER JOIN meals m ON m.id = r.meal_id

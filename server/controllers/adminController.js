@@ -2,6 +2,7 @@
 
 const bcrypt = require("bcrypt");
 const { db } = require("../config/db");
+const { BANGLADESH_TOMORROW_SQL } = require("../utils/bangladeshTime");
 
 const USER_ROLES = ["student", "staff", "admin"];
 const USER_STATUSES = ["active", "inactive", "suspended"];
@@ -48,7 +49,7 @@ async function getOverview(req, res, next) {
         COUNT(*) AS published_meals,
         COALESCE(SUM(GREATEST(capacity - reserved_count, 0)), 0) AS meal_remaining
       FROM meals
-      WHERE meal_date = DATE_ADD(CURDATE(), INTERVAL 1 DAY) AND status = 'available'
+      WHERE meal_date = ${BANGLADESH_TOMORROW_SQL} AND status = 'available'
     `);
     const [[reservations]] = await db.query(`
       SELECT
@@ -57,7 +58,7 @@ async function getOverview(req, res, next) {
         COALESCE(SUM(r.status = 'collected'), 0) AS collected_reservations
       FROM reservations r
       INNER JOIN meals m ON m.id = r.meal_id
-      WHERE m.meal_date = DATE_ADD(CURDATE(), INTERVAL 1 DAY)
+      WHERE m.meal_date = ${BANGLADESH_TOMORROW_SQL}
     `);
 
     return res.json({

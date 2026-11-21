@@ -1712,13 +1712,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         return Number.isNaN(date.getTime())
             ? ""
-            : date.toISOString().slice(0, 10);
+            : FoodFlowDate.dateKey(date);
     }
 
     function isPastMeal(reservation) {
         const mealDate = reservation.meal_date || reservation.meal?.meal_date;
 
-        return reservationDateKey(mealDate) < new Date().toISOString().slice(0, 10);
+        return reservationDateKey(mealDate) < FoodFlowDate.dateKey();
     }
 
 
