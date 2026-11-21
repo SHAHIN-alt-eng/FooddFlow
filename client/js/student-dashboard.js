@@ -1010,13 +1010,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
             if (todayMealStatus) {
-
-                todayMealStatus.textContent =
-                    firstMeal
-                        ? `${formatMealType(
-                            firstMeal.meal_type
-                        )} available`
-                        : "Check back later for tomorrow's menu";
+                const status = reservedMealIds.has(Number(firstMeal?.id))
+                    ? "reserved"
+                    : "available";
+                todayMealStatus.textContent = firstMeal
+                    ? `${formatMealType(firstMeal.meal_type)} ${status}`
+                    : "Check back later for tomorrow's menu";
             }
 
 
@@ -1128,6 +1127,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             throw new Error(
                 data.message ||
+                data.error ||
                 "Reservation request failed."
             );
         }
@@ -1580,25 +1580,24 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
             if (reservationList) {
+                const emptyState = document.createElement("div");
+                emptyState.className = "empty-state";
 
-                reservationList.innerHTML =
-                    `
-                    <div class="empty-state">
+                const icon = document.createElement("div");
+                icon.className = "empty-icon";
+                icon.textContent = "!";
 
-                        <div class="empty-icon">
-                            !
-                        </div>
+                const title = document.createElement("h3");
+                title.textContent = "Reservations unavailable";
 
-                        <h3>
-                            Reservations unavailable
-                        </h3>
+                const message = document.createElement("p");
+                const reason = error instanceof Error ? error.message : "";
+                message.textContent = reason
+                    ? `We could not sync your reservations: ${reason}`
+                    : "We could not sync your reservations right now.";
 
-                        <p>
-                            We could not sync your reservations right now.
-                        </p>
-
-                    </div>
-                    `;
+                emptyState.append(icon, title, message);
+                reservationList.replaceChildren(emptyState);
             }
         }
     }

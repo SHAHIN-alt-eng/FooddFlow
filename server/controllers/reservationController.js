@@ -34,6 +34,17 @@ function sendInvalidId(res, label) {
   });
 }
 
+function handleReservationSchemaError(error, res, next) {
+  if (error.code === "ER_BAD_FIELD_ERROR" || error.code === "ER_NO_SUCH_TABLE") {
+    return res.status(503).json({
+      success: false,
+      message: "The database is missing required reservation/payment fields. Apply the pending SQL migrations, then retry."
+    });
+  }
+
+  return next(error);
+}
+
 async function reserveMeal(req, res, next) {
   const userId = getUserId(req);
   const mealId = getId(req.body?.meal_id);
@@ -287,7 +298,7 @@ async function getMyReservations(req, res, next) {
       reservations
     });
   } catch (error) {
-    return next(error);
+    return handleReservationSchemaError(error, res, next);
   }
 }
 
@@ -353,7 +364,7 @@ async function getReservationById(req, res, next) {
       reservation: reservations[0]
     });
   } catch (error) {
-    return next(error);
+    return handleReservationSchemaError(error, res, next);
   }
 }
 
