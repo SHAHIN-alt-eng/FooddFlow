@@ -8401,3 +8401,45 @@ textarea:focus-visible {
         display: none;
     }
 }
+
+.dashboard-page .sidebar-help .hall-selector {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    margin: 0 0 8px;
+}
+
+.dashboard-page .sidebar-help .hall-selector label {
+    margin: 0 0 5px;
+    color: #ffffff;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.dashboard-page .sidebar-help .hall-selector select {
+    width: 100%;
+    min-height: 42px;
+    padding: 8px 32px 8px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.58);
+    border-radius: 9px;
+    background-color: #ffffff;
+    color: #183d2b;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.dashboard-page .sidebar-help .hall-selector select option {
+    background-color: #ffffff;
+    color: #183d2b;
+}
+
+.dashboard-page .sidebar-help .hall-selector select:focus {
+    border-color: #f3a526;
+    box-shadow: 0 0 0 3px rgba(243, 165, 38, 0.28);
+}
+
+.dashboard-page .sidebar-help span:last-child {
+    color: rgba(255, 255, 255, 0.72);
+}
