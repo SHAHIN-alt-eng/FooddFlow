@@ -14,6 +14,11 @@ const HALLS = [
   "Female Hall 2"
 ];
 
+const HALLS_BY_GENDER = {
+  male: HALLS.slice(0, -2),
+  female: HALLS.slice(-2)
+};
+
 const HALL_NAMES = new Map(
   HALLS.map((hall) => [hall.toLowerCase(), hall])
 );
@@ -38,5 +43,6 @@ function normalizeHallName(value) {
 
 module.exports = {
   HALLS,
+  HALLS_BY_GENDER,
   normalizeHallName
 };

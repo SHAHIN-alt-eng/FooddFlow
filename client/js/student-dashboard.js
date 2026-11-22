@@ -87,6 +87,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const hallSelect = document.getElementById("hallSelect");
     const mealHallFilter = document.getElementById("mealHallFilter");
+    const complaintHallSelect = document.getElementById("complaintHallSelect");
     let currentUser = storedUser;
     let allTodayMeals = [];
     let selectedMealHall = "";
@@ -106,29 +107,40 @@ document.addEventListener("DOMContentLoaded", async () => {
      */
     function setupMealHallFilter(user) {
 
-        if (!mealHallFilter) {
-            return;
-        }
-
         const halls = HALLS_BY_GENDER[user?.gender] || [];
 
-        mealHallFilter.replaceChildren(
-            new Option("Choose a hall", ""),
-            ...halls.map((hall) => new Option(hall, hall))
-        );
+        if (mealHallFilter) {
+            mealHallFilter.replaceChildren(
+                new Option("Choose a hall", ""),
+                ...halls.map((hall) => new Option(hall, hall))
+            );
 
-        mealHallFilter.value = selectedMealHall;
+            mealHallFilter.value = selectedMealHall;
 
-        mealHallFilter.addEventListener("change", () => {
-            selectedMealHall = mealHallFilter.value;
-            const title = document.getElementById("todayMealsTitle");
-            if (title) {
-                title.textContent = selectedMealHall
-                    ? `${selectedMealHall} meals`
-                    : "Choose a hall to view meals";
-            }
-            renderTodayMeals(filterMealsByHall(allTodayMeals));
-        });
+            mealHallFilter.addEventListener("change", () => {
+                selectedMealHall = mealHallFilter.value;
+                if (complaintHallSelect) {
+                    complaintHallSelect.value = selectedMealHall;
+                }
+                const title = document.getElementById("todayMealsTitle");
+                if (title) {
+                    title.textContent = selectedMealHall
+                        ? `${selectedMealHall} meals`
+                        : "Choose a hall to view meals";
+                }
+                renderTodayMeals(filterMealsByHall(allTodayMeals));
+            });
+        }
+
+        if (complaintHallSelect) {
+            complaintHallSelect.replaceChildren(
+                new Option("Choose a hall", ""),
+                ...halls.map((hall) => new Option(hall, hall))
+            );
+            complaintHallSelect.value = halls.includes(selectedMealHall)
+                ? selectedMealHall
+                : halls.includes(user?.hall_name) ? user.hall_name : "";
+        }
     }
 
     function filterMealsByHall(meals) {
@@ -2263,9 +2275,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             const subject = document.getElementById("complaintSubject").value.trim();
             const message = document.getElementById("complaintMessage").value.trim();
+            const hall_name = complaintHallSelect.value;
 
-            if (!subject || !message) {
-                complaintFormStatus.textContent = "Please fill in both the subject and details.";
+            if (!hall_name || !subject || !message) {
+                complaintFormStatus.textContent = "Please select a hall and fill in both the subject and details.";
                 complaintFormStatus.className = "form-status form-status-error";
                 return;
             }
@@ -2281,7 +2294,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         "Authorization": `Bearer ${token}`,
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify({ subject, message })
+                    body: JSON.stringify({ hall_name, subject, message })
                 });
 
                 if (response.status === 401) {

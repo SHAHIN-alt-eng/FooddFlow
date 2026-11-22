@@ -1,6 +1,7 @@
 "use strict";
 
 const { db } = require("../config/db");
+const { HALLS_BY_GENDER, normalizeHallName } = require("../utils/halls");
 
 const COMPLAINT_STATUSES = ["pending", "in_progress", "resolved"];
 
@@ -19,7 +20,7 @@ async function getUserHallName(userId) {
         [userId]
     );
 
-    return users[0]?.hall_name || "";
+    return normalizeHallName(users[0]?.hall_name);
 }
 
 
@@ -56,12 +57,25 @@ async function createComplaint(req, res, next) {
             });
         }
 
-        const hallName = await getUserHallName(req.user.sub);
+        const hasRequestedHallName = typeof req.body?.hall_name === "string"
+            && req.body.hall_name.trim() !== "";
+        const requestedHallName = hasRequestedHallName
+            ? normalizeHallName(req.body.hall_name)
+            : "";
+        const [userRows] = await db.query(
+            "SELECT gender, hall_name FROM users WHERE id = ? LIMIT 1",
+            [req.user.sub]
+        );
+        const user = userRows[0];
+        const hallName = hasRequestedHallName
+            ? requestedHallName
+            : normalizeHallName(user?.hall_name);
+        const allowedHalls = HALLS_BY_GENDER[user?.gender] || [];
 
-        if (!hallName) {
+        if (!allowedHalls.includes(hallName)) {
             return res.status(400).json({
                 success: false,
-                message: "Your account is not assigned to a hall yet. Please contact an admin."
+                message: "Please select a valid hall for your complaint."
             });
         }
 
@@ -236,7 +250,7 @@ async function updateComplaint(req, res, next) {
         if (req.user.role === "staff") {
             const staffHall = await getUserHallName(req.user.sub);
 
-            if (!staffHall || existingComplaint.hall_name !== staffHall) {
+            if (!staffHall || normalizeHallName(existingComplaint.hall_name) !== staffHall) {
                 return res.status(403).json({
                     success: false,
                     message: "You can only manage complaints from your own hall."

@@ -6,16 +6,11 @@ const {
   BANGLADESH_DATE_SQL,
   BANGLADESH_NOW_SQL
 } = require("../utils/bangladeshTime");
-const { normalizeHallName } = require("../utils/halls");
+const { HALLS_BY_GENDER, normalizeHallName } = require("../utils/halls");
 
 const ACTIVE_STATUS = "reserved";
 const CANCELLED_STATUS = "cancelled";
 const COLLECTED_STATUS = "collected";
-const HALLS_BY_GENDER = {
-  male: ["Shaheed President Zia Hall", "Abdul Hamid Hall", "Tinshed Hall", "Shohidul Hall", "Shere-e-Bangla A K Fazlul Haque Hall", "Selim Hall", "Male Hall-1", "Male Hall-2", "Male Hall-3"],
-  female: ["Female Hall 1", "Female Hall 2"]
-};
-
 function getUserId(req) {
   const userId = Number(req.user?.sub);
 
