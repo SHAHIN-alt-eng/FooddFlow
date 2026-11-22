@@ -8306,6 +8306,19 @@ textarea:focus-visible {
 .dashboard-page .overview-card {
     border-color: var(--ff-line);
     box-shadow: 0 10px 24px rgba(24, 61, 43, 0.055);
+    min-width: 0;
+}
+
+.dashboard-page .overview-card > div:last-child {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.dashboard-page .overview-card strong,
+.dashboard-page .meal-card h3 {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: normal;
 }
 
 .dashboard-page .overview-card:nth-child(3n + 1) .card-icon { background: var(--ff-mint); color: var(--ff-leaf); }
@@ -8378,6 +8391,7 @@ textarea:focus-visible {
     .dashboard-page .dashboard-main { padding: 20px 16px 34px; }
     .dashboard-page .dashboard-section { border-radius: 18px; }
     .dashboard-page .section-heading { gap: 16px; }
+    .dashboard-page .overview-grid { grid-template-columns: minmax(0, 1fr); }
     .dashboard-page .meal-hall-filter { width: 100%; }
     .dashboard-page .meal-hall-filter select { width: 100%; }
 }
