@@ -6,10 +6,10 @@ const {
     getBangladeshTomorrowDate,
     getMealReservationDeadline
 } = require("../utils/bangladeshTime");
+const { HALLS, normalizeHallName } = require("../utils/halls");
 
 const MEAL_TYPES = ["breakfast", "lunch", "dinner"];
 const MEAL_STATUSES = ["available", "closed", "cancelled"];
-const HALLS = ["Shaheed President Zia Hall", "Abdul Hamid Hall", "Tinshed Hall", "Shohidul Hall", "Shere-e-Bangla A K Fazlul Haque Hall", "Selim Hall", "Male Hall-1", "Male Hall-2", "Male Hall-3", "Female Hall 1", "Female Hall 2"];
 
 function isValidDate(value) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
@@ -49,7 +49,7 @@ function mealIdFromRequest(req) {
 }
 
 function validHall(value) {
-    return typeof value === "string" && HALLS.includes(value.trim());
+    return Boolean(normalizeHallName(value));
 }
 
 /* ---------------------------------------------------------
@@ -62,7 +62,7 @@ async function getUserHallName(userId) {
         [userId]
     );
 
-    return users[0]?.hall_name || "";
+    return normalizeHallName(users[0]?.hall_name);
 }
 
 
@@ -324,7 +324,7 @@ async function getMealById(req, res, next) {
         if (req.user?.role === "staff") {
             const staffHall = await getUserHallName(req.user.sub);
 
-            if (!validHall(staffHall) || meal.hall_name !== staffHall) {
+            if (!validHall(staffHall) || normalizeHallName(meal.hall_name) !== staffHall) {
                 return res.status(404).json({
                     success: false,
                     message: "Meal not found."
@@ -390,10 +390,9 @@ async function createMeal(req, res, next) {
                 ? meal_date.trim()
                 : "";
 
-        let cleanHallName = typeof hall_name === "string" ? hall_name.trim() : "";
+        let cleanHallName = normalizeHallName(hall_name);
         if (req.user?.role === "staff") {
-            const [users] = await db.query("SELECT hall_name FROM users WHERE id = ? LIMIT 1", [req.user.sub]);
-            cleanHallName = users[0]?.hall_name || "";
+            cleanHallName = await getUserHallName(req.user.sub);
         }
 
         if (!validHall(cleanHallName)) {
@@ -698,7 +697,7 @@ async function updateMeal(req, res, next) {
         if (req.user?.role === "staff") {
             const staffHall = await getUserHallName(req.user.sub);
 
-            if (!validHall(staffHall) || existingMeal.hall_name !== staffHall) {
+            if (!validHall(staffHall) || normalizeHallName(existingMeal.hall_name) !== staffHall) {
                 return res.status(403).json({
                     success: false,
                     message: "You can only manage meals for your own hall."
@@ -921,7 +920,7 @@ async function cancelMeal(req, res, next) {
 
             const staffHall = await getUserHallName(req.user.sub);
 
-            if (!validHall(staffHall) || existingMeal.hall_name !== staffHall) {
+            if (!validHall(staffHall) || normalizeHallName(existingMeal.hall_name) !== staffHall) {
                 return res.status(403).json({
                     success: false,
                     message: "You can only manage meals for your own hall."

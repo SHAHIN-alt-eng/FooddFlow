@@ -6,6 +6,7 @@ const {
   BANGLADESH_DATE_SQL,
   BANGLADESH_NOW_SQL
 } = require("../utils/bangladeshTime");
+const { normalizeHallName } = require("../utils/halls");
 
 const ACTIVE_STATUS = "reserved";
 const CANCELLED_STATUS = "cancelled";
@@ -587,9 +588,9 @@ async function collectMeal(req, res, next) {
         "SELECT hall_name FROM users WHERE id = ? LIMIT 1",
         [getUserId(req)]
       );
-      const staffHall = staffRows[0]?.hall_name || "";
+      const staffHall = normalizeHallName(staffRows[0]?.hall_name);
 
-      if (!staffHall || reservation.hall_name !== staffHall) {
+      if (!staffHall || normalizeHallName(reservation.hall_name) !== staffHall) {
         await connection.rollback();
 
         return res.status(403).json({
