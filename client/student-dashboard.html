@@ -324,7 +324,9 @@
         }
 
         .complaint-form input,
+        .complaint-form select,
         .complaint-form textarea {
+            width: 100%;
             padding: 12px 14px;
             border: 1px solid #dfe3d9;
             border-radius: 10px;
@@ -332,6 +334,11 @@
             font-family: inherit;
             background: #fffcf8;
             color: #2d4034;
+        }
+
+        .complaint-form select {
+            min-height: 44px;
+            cursor: pointer;
         }
 
         .complaint-form textarea {
