@@ -8443,3 +8443,45 @@ textarea:focus-visible {
 .dashboard-page .sidebar-help span:last-child {
     color: rgba(255, 255, 255, 0.72);
 }
+
+.register-panel #registerButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 48px;
+    margin-top: 16px;
+    padding: 13px 18px;
+    border: 0;
+    border-radius: 10px;
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    box-shadow: 0 7px 18px rgba(22, 163, 74, 0.22);
+    font: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.register-panel #registerButton:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(22, 163, 74, 0.28);
+}
+
+.register-panel #registerButton:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.register-panel #registerButton:focus-visible {
+    outline: 3px solid rgba(22, 163, 74, 0.32);
+    outline-offset: 3px;
+}
+
+.register-panel #registerButton:disabled {
+    opacity: 0.72;
+    cursor: wait;
+    transform: none;
+    box-shadow: none;
+}
