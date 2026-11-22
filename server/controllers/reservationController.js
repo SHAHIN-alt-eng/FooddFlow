@@ -45,6 +45,40 @@ function handleReservationSchemaError(error, res, next) {
   return next(error);
 }
 
+async function addLatestPaymentDetails(reservations) {
+  if (!reservations.length) {
+    return;
+  }
+
+  const reservationIds = reservations.map((reservation) => reservation.id);
+  const placeholders = reservationIds.map(() => "?").join(", ");
+  const [payments] = await db.query(
+    `SELECT
+       p.reservation_id,
+       p.amount,
+       p.refund_status,
+       p.refunded_at
+     FROM payments p
+     INNER JOIN (
+       SELECT reservation_id, MAX(id) AS latest_payment_id
+       FROM payments
+       WHERE reservation_id IN (${placeholders})
+       GROUP BY reservation_id
+     ) latest ON latest.latest_payment_id = p.id`,
+    reservationIds
+  );
+  const paymentsByReservation = new Map(
+    payments.map((payment) => [String(payment.reservation_id), payment])
+  );
+
+  for (const reservation of reservations) {
+    const payment = paymentsByReservation.get(String(reservation.id));
+    reservation.payment_amount = payment?.amount ?? null;
+    reservation.refund_status = payment?.refund_status ?? null;
+    reservation.refunded_at = payment?.refunded_at ?? null;
+  }
+}
+
 async function reserveMeal(req, res, next) {
   const userId = getUserId(req);
   const mealId = getId(req.body?.meal_id);
@@ -274,23 +308,14 @@ async function getMyReservations(req, res, next) {
         m.meal_type,
         m.menu_name,
         m.description,
-        m.reservation_deadline,
-        p.amount AS payment_amount,
-        p.refund_status,
-        p.refunded_at
+        m.reservation_deadline
       FROM reservations r
       INNER JOIN meals m ON m.id = r.meal_id
-      LEFT JOIN payments p ON p.id = (
-        SELECT latest_payment.id
-        FROM payments latest_payment
-        WHERE latest_payment.reservation_id = r.id
-        ORDER BY latest_payment.created_at DESC, latest_payment.id DESC
-        LIMIT 1
-      )
       WHERE r.user_id = ?
       ORDER BY m.meal_date ASC, r.reserved_at DESC`,
       [userId]
     );
+    await addLatestPaymentDetails(reservations);
 
     return res.status(200).json({
       success: true,
@@ -333,19 +358,9 @@ async function getReservationById(req, res, next) {
         m.meal_type,
         m.menu_name,
         m.description,
-        m.reservation_deadline,
-        p.amount AS payment_amount,
-        p.refund_status,
-        p.refunded_at
+        m.reservation_deadline
       FROM reservations r
       INNER JOIN meals m ON m.id = r.meal_id
-      LEFT JOIN payments p ON p.id = (
-        SELECT latest_payment.id
-        FROM payments latest_payment
-        WHERE latest_payment.reservation_id = r.id
-        ORDER BY latest_payment.created_at DESC, latest_payment.id DESC
-        LIMIT 1
-      )
       WHERE r.id = ?
         AND r.user_id = ?
       LIMIT 1`,
@@ -358,6 +373,8 @@ async function getReservationById(req, res, next) {
         message: "Reservation not found."
       });
     }
+
+    await addLatestPaymentDetails(reservations);
 
     return res.status(200).json({
       success: true,
