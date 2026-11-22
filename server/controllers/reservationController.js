@@ -581,34 +581,7 @@ async function collectMeal(req, res, next) {
       });
     }
 
-    if (reservation.status === CANCELLED_STATUS) {
-      await connection.rollback();
-
-      return res.status(409).json({
-        success: false,
-        message: "This reservation has been cancelled."
-      });
-    }
-
-    if (reservation.status === COLLECTED_STATUS) {
-      await connection.rollback();
-
-      return res.status(409).json({
-        success: false,
-        message: "This meal has already been collected."
-      });
-    }
-
-    if (reservation.status !== ACTIVE_STATUS) {
-      await connection.rollback();
-
-      return res.status(409).json({
-        success: false,
-        message: "This reservation is not eligible for collection."
-      });
-    }
-
-    // Staff can only collect meals reserved at their own hall.
+    // Staff may only view or collect reservations belonging to their own hall.
     if (req.user?.role === "staff") {
       const [staffRows] = await connection.query(
         "SELECT hall_name FROM users WHERE id = ? LIMIT 1",
@@ -624,6 +597,45 @@ async function collectMeal(req, res, next) {
           message: "This reservation belongs to a different hall."
         });
       }
+    }
+
+    if (reservation.status === CANCELLED_STATUS) {
+      await connection.rollback();
+
+      return res.status(409).json({
+        success: false,
+        message: "This reservation has been cancelled."
+      });
+    }
+
+    if (reservation.status === COLLECTED_STATUS) {
+      await connection.rollback();
+
+      return res.status(409).json({
+        success: false,
+        message: "This meal has already been collected.",
+        reservation: {
+          id: reservation.id,
+          user_id: reservation.user_id,
+          student_name: reservation.student_name,
+          student_email: reservation.student_email,
+          meal_id: reservation.meal_id,
+          hall_name: reservation.hall_name,
+          meal_date: reservation.meal_date,
+          meal_type: reservation.meal_type,
+          menu_name: reservation.menu_name,
+          status: reservation.status
+        }
+      });
+    }
+
+    if (reservation.status !== ACTIVE_STATUS) {
+      await connection.rollback();
+
+      return res.status(409).json({
+        success: false,
+        message: "This reservation is not eligible for collection."
+      });
     }
 
     if (Number(reservation.is_today) !== 1) {

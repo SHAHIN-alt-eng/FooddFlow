@@ -61,7 +61,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const data = await response.json().catch(() => ({}));
         if (!response.ok || !data.success) {
-            throw new Error(data.message || "Request failed.");
+            const error = new Error(data.message || "Request failed.");
+            error.data = data;
+            throw error;
         }
         return data;
     }
@@ -385,6 +387,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         return scannedText.trim();
     }
 
+    function displayScannedReservation(reservation) {
+        document.getElementById("scannedReservationId").textContent = `#${reservation.id}`;
+        document.getElementById("scannedStudentName").textContent = reservation.student_name || "Unknown";
+        document.getElementById("scannedMealName").textContent = reservation.menu_name || "Unknown";
+        document.getElementById("scannedHallName").textContent = reservation.hall_name || "Unknown";
+
+        const status = reservation.status === "collected"
+            ? "Collected ✓"
+            : reservation.status || "Reserved";
+        const statusElement = document.getElementById("scannedStatus");
+        statusElement.textContent = status;
+        statusElement.style.background = reservation.status === "collected" ? "#e8ebe8" : "#e8f0d4";
+        statusElement.style.color = "#4d6b47";
+    }
+
     async function handleScan(qrToken) {
         if (!qrToken || currentScannedData) return;
 
@@ -399,14 +416,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
 
             if (data?.success && data.reservation) {
-                const res = data.reservation;
-                document.getElementById("scannedReservationId").textContent = `#${res.id}`;
-                document.getElementById("scannedStudentName").textContent = res.student_name || "Unknown";
-                document.getElementById("scannedMealName").textContent = res.menu_name || "Unknown";
-                document.getElementById("scannedHallName").textContent = res.hall_name || "Unknown";
-                document.getElementById("scannedStatus").textContent = "Collected ✓";
-                document.getElementById("scannedStatus").style.background = "#e8ebe8";
-                document.getElementById("scannedStatus").style.color = "#4d6b47";
+                displayScannedReservation(data.reservation);
 
                 scanResultMessage.textContent = "✓ Meal collected successfully!";
                 scanResultMessage.className = "form-status form-status-success";
@@ -415,6 +425,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                 confirmCollectionButton.style.display = "none";
             }
         } catch (error) {
+            if (error.data?.reservation) {
+                displayScannedReservation(error.data.reservation);
+            }
+            confirmCollectionButton.style.display = "none";
             scanResultMessage.textContent = `Error: ${error.message}`;
             scanResultMessage.className = "form-status form-status-error";
             scanResults.style.display = "block";
