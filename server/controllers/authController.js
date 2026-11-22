@@ -1,12 +1,8 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { db } = require("../config/db");
+const { isStudentRegistrationEmail, isRuetEmail } = require("../utils/studentEmail");
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-// Only RUET email addresses are allowed to register or sign in.
-// Matches "...@ruet.ac.bd" as well as subdomains like
-// "...@student.ruet.ac.bd" or "...@mail.ruet.ac.bd".
-const RUET_EMAIL_PATTERN = /^[^\s@]+@([a-z0-9-]+\.)*ruet\.ac\.bd$/i;
 const SALT_ROUNDS = Number(process.env.BCRYPT_SALT_ROUNDS) || 12;
 const VALID_GENDERS = ["male", "female"];
 
@@ -44,17 +40,10 @@ async function registerUser(req, res, next) {
       });
     }
 
-    if (!EMAIL_PATTERN.test(cleanEmail)) {
+    if (!isStudentRegistrationEmail(cleanEmail)) {
       return res.status(400).json({
         success: false,
-        message: "Please provide a valid email address."
-      });
-    }
-
-    if (!RUET_EMAIL_PATTERN.test(cleanEmail)) {
-      return res.status(400).json({
-        success: false,
-        message: "Only RUET email addresses (@ruet.ac.bd) can be used to register."
+        message: "Use your student ID as your email in this format: student_id@student.ruet.ac.bd."
       });
     }
 
@@ -147,7 +136,7 @@ async function loginUser(req, res, next) {
     // Student accounts must always sign in with their RUET email.
     // (Staff/admin accounts are created separately by an admin and
     // are not required to use a @ruet.ac.bd address.)
-    if (user.role === "student" && !RUET_EMAIL_PATTERN.test(cleanEmail)) {
+    if (user.role === "student" && !isRuetEmail(cleanEmail)) {
       return res.status(400).json({
         success: false,
         message: "Please sign in using a valid RUET email address (@ruet.ac.bd)."
